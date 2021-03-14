@@ -231,7 +231,8 @@ So our first attempt we have a RMSE or 4.806 or 21% of the mean of
 
 Next we try running a gradient boosting model on it. We’re going to use
 repeated cross-validation here, so it’s going to split the data into 10
-pieces, train on 9 and test on the 10th, 3 times.
+pieces, train on 9 and test on the 10th; and it’s going to do this 3
+times.
 
 ``` r
 # Define training control
