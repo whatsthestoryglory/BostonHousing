@@ -187,10 +187,11 @@ plot(lm1)
 ![](BostonHousing_files/figure-gfm/initial_linear_model-1.png)<!-- -->![](BostonHousing_files/figure-gfm/initial_linear_model-2.png)<!-- -->![](BostonHousing_files/figure-gfm/initial_linear_model-3.png)<!-- -->![](BostonHousing_files/figure-gfm/initial_linear_model-4.png)<!-- -->
 
 From this output we can see that a linear model on the variables as-is
-is inappropriate. Looking at the Q-Q or the residuals vs fitted plot you
-can see that there’s a problem with this model. There’s a clear U-shaped
-trend on the residuals and the Q-Q shows a lot of entries far away from
-the normal line.
+actually did pretty well within -2/+1 SD, but is pretty inappropriate
+outside of those bounds. Looking at the Q-Q or the residuals vs fitted
+plot you can see that there’s a problem with this model. There’s a clear
+U-shaped trend on the residuals and the Q-Q shows a lot of entries far
+away from the normal line.
 
 Just for fun, though, let’s try using a straight linear model with
 cross-validation to predict the housing values. This will give us a good
@@ -276,5 +277,6 @@ print(model)
     ##  3, shrinkage = 0.1 and n.minobsinnode = 10.
 
 Here we can see we’ve improved, we’re now at a RMSE of 3.22 and MAE of
-2.22. Can we do any better by going back to the data and performing some
-transformations on the data?
+2.22. Now that we have a baseline on what can be done with minimal
+interactions with the data, can we do any better by going back to the
+data and performing some transformations?
