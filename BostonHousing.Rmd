@@ -13,10 +13,11 @@ LoadLibraries = function() {
   library(MASS)
   library(tidyverse)
   library(caret)
+  library(ggpubr)
 }
 
 LoadLibraries()
-attach(Boston)
+df <- as.data.frame(Boston)
 
 ```
 
@@ -43,13 +44,20 @@ The first thing to do before any sort of modelling is to analyze the dataset and
 Next we look at some basic information about how its captured
 
 ```{r str}
-str(Boston)
+str(df)
 ```
 
-This shows us that all of our variables are numeric, with chas and rad being integers. As you can see from the dictionary above, chas is a dummy variable representing whether or not the tract bounds the river, so it's best described as binary in this instance. Rad is listed as an index of accessibility, so I take this as being equivalent to a continuous variable like the others.
+This shows us that all of our variables are numeric, with chas and rad being integers. As you can see from the dictionary above, chas is a dummy variable representing whether or not the tract bounds the river, so it's best described as binary in this instance.  I'm going to change it to a factor so it doesn't mess with any of our calculations later.
+
+```{r}
+df$chas <- as.factor(df$chas)
+```
+
+
+Rad is listed as an index of accessibility, so I take this as being equivalent to a continuous variable like the others.
 
 ```{r summarize}
-summary(Boston)
+summary(df)
 ```
 
 This output gives me a few areas I'd like to investigate further. The zn and chas variables seem to have a lot of 0s so that's something I should follow up on. crim has a median and mean that are very far apart which is also interesting.
@@ -57,18 +65,27 @@ This output gives me a few areas I'd like to investigate further. The zn and cha
 ```{r histogram, message = FALSE}
 library(reshape2)
 library(ggplot2)
-d <- melt(Boston)
+d <- melt(df)
 ggplot(d,aes(x = value)) + 
     facet_wrap(~variable,scales = "free_x") + 
-    geom_histogram() + ylim(0,150)
+    geom_histogram() + 
+    geom_density(aes(y=..count..)) + ylim(0,75)
 ```
 
 This output tells us some interesting things.  For example, the per capita crime rate by town (`crim`) along with `chas` and `zn` have an overwhelming count of 0s in it.  You'll have to trust me on this one as the bars don't show up due to the Y axis I defined to be able to see the shapes of the other histograms.  The average number of rooms per dwelling (`rm`) appears to be normally distributed, as does the median home value (`medv`) which is the intended response variable with this dataset.  `dis` and `lstat` also appear to have somewhat normal distributions but both have long right tails.
 
+``` {r initial_box_plot}
+ggplot(d, aes(x=value)) +
+  facet_wrap(~variable,scales = "free_x") + 
+    geom_boxplot()
+```
+
+In some ways I find these boxplots to be more informative than the histogram and density plots shown previously.  Here we can see even more strongly the effect of `crim` and `zn` having a large count of 0s as shown by the small box and large quantity of outliers.  `black` is interesting as well with the small box to the right and large quantity of outliers to the left.
+
 ## Linear Model - the wrong way
 
 ``` {r initial_linear_model}
-lm1 <- lm(medv~., data=Boston)
+lm1 <- lm(medv~., data=df)
 summary(lm1)
 plot(lm1)
 ```
@@ -83,8 +100,31 @@ set.seed(123)
 train.control <- trainControl(method = "repeatedcv", 
                               number = 10, repeats = 3)
 # Train the model
-model <- train(medv ~., data = Boston, method = "lm",
+model <- train(medv ~., data = df, method = "lm",
                trControl = train.control)
 # Summarize the results
 print(model)
 ```
+
+So our first attempt we have a RMSE or 4.806 or 21% of the mean of `medv` and a MAE of 3.38.  Let's see if we can do any better.
+
+### Stochastic Gradient Boosting
+
+Next we try running a gradient boosting model on it.  We're going to use repeated cross-validation here, so it's going to split the data into 10 pieces, train on 9 and test on the 10th, 3 times.
+
+``` {r gam_cross_validation, results='hide'}
+# Define training control
+set.seed(123)
+train.control <- trainControl(method = "repeatedcv", 
+                              number = 10, repeats = 3)
+# Train the model
+model <- train(medv ~., data = df, method = "gbm",
+               trControl = train.control)
+```
+
+``` {r}
+# Summarize the results
+print(model)
+```
+
+Here we can see we've improved, we're now at a RMSE of 3.22 and MAE of 2.22.  Can we do any better by going back to the data and performing some transformations on the data?

@@ -30,7 +30,7 @@ for our data
 Next we look at some basic information about how its captured
 
 ``` r
-str(Boston)
+str(df)
 ```
 
     ## 'data.frame':    506 obs. of  14 variables:
@@ -52,42 +52,48 @@ str(Boston)
 This shows us that all of our variables are numeric, with chas and rad
 being integers. As you can see from the dictionary above, chas is a
 dummy variable representing whether or not the tract bounds the river,
-so it’s best described as binary in this instance. Rad is listed as an
-index of accessibility, so I take this as being equivalent to a
-continuous variable like the others.
+so it’s best described as binary in this instance. I’m going to change
+it to a factor so it doesn’t mess with any of our calculations later.
 
 ``` r
-summary(Boston)
+df$chas <- as.factor(df$chas)
 ```
 
-    ##       crim                zn             indus            chas        
-    ##  Min.   : 0.00632   Min.   :  0.00   Min.   : 0.46   Min.   :0.00000  
-    ##  1st Qu.: 0.08205   1st Qu.:  0.00   1st Qu.: 5.19   1st Qu.:0.00000  
-    ##  Median : 0.25651   Median :  0.00   Median : 9.69   Median :0.00000  
-    ##  Mean   : 3.61352   Mean   : 11.36   Mean   :11.14   Mean   :0.06917  
-    ##  3rd Qu.: 3.67708   3rd Qu.: 12.50   3rd Qu.:18.10   3rd Qu.:0.00000  
-    ##  Max.   :88.97620   Max.   :100.00   Max.   :27.74   Max.   :1.00000  
-    ##       nox               rm             age              dis        
-    ##  Min.   :0.3850   Min.   :3.561   Min.   :  2.90   Min.   : 1.130  
-    ##  1st Qu.:0.4490   1st Qu.:5.886   1st Qu.: 45.02   1st Qu.: 2.100  
-    ##  Median :0.5380   Median :6.208   Median : 77.50   Median : 3.207  
-    ##  Mean   :0.5547   Mean   :6.285   Mean   : 68.57   Mean   : 3.795  
-    ##  3rd Qu.:0.6240   3rd Qu.:6.623   3rd Qu.: 94.08   3rd Qu.: 5.188  
-    ##  Max.   :0.8710   Max.   :8.780   Max.   :100.00   Max.   :12.127  
-    ##       rad              tax           ptratio          black       
-    ##  Min.   : 1.000   Min.   :187.0   Min.   :12.60   Min.   :  0.32  
-    ##  1st Qu.: 4.000   1st Qu.:279.0   1st Qu.:17.40   1st Qu.:375.38  
-    ##  Median : 5.000   Median :330.0   Median :19.05   Median :391.44  
-    ##  Mean   : 9.549   Mean   :408.2   Mean   :18.46   Mean   :356.67  
-    ##  3rd Qu.:24.000   3rd Qu.:666.0   3rd Qu.:20.20   3rd Qu.:396.23  
-    ##  Max.   :24.000   Max.   :711.0   Max.   :22.00   Max.   :396.90  
-    ##      lstat            medv      
-    ##  Min.   : 1.73   Min.   : 5.00  
-    ##  1st Qu.: 6.95   1st Qu.:17.02  
-    ##  Median :11.36   Median :21.20  
-    ##  Mean   :12.65   Mean   :22.53  
-    ##  3rd Qu.:16.95   3rd Qu.:25.00  
-    ##  Max.   :37.97   Max.   :50.00
+Rad is listed as an index of accessibility, so I take this as being
+equivalent to a continuous variable like the others.
+
+``` r
+summary(df)
+```
+
+    ##       crim                zn             indus       chas         nox        
+    ##  Min.   : 0.00632   Min.   :  0.00   Min.   : 0.46   0:471   Min.   :0.3850  
+    ##  1st Qu.: 0.08205   1st Qu.:  0.00   1st Qu.: 5.19   1: 35   1st Qu.:0.4490  
+    ##  Median : 0.25651   Median :  0.00   Median : 9.69           Median :0.5380  
+    ##  Mean   : 3.61352   Mean   : 11.36   Mean   :11.14           Mean   :0.5547  
+    ##  3rd Qu.: 3.67708   3rd Qu.: 12.50   3rd Qu.:18.10           3rd Qu.:0.6240  
+    ##  Max.   :88.97620   Max.   :100.00   Max.   :27.74           Max.   :0.8710  
+    ##        rm             age              dis              rad        
+    ##  Min.   :3.561   Min.   :  2.90   Min.   : 1.130   Min.   : 1.000  
+    ##  1st Qu.:5.886   1st Qu.: 45.02   1st Qu.: 2.100   1st Qu.: 4.000  
+    ##  Median :6.208   Median : 77.50   Median : 3.207   Median : 5.000  
+    ##  Mean   :6.285   Mean   : 68.57   Mean   : 3.795   Mean   : 9.549  
+    ##  3rd Qu.:6.623   3rd Qu.: 94.08   3rd Qu.: 5.188   3rd Qu.:24.000  
+    ##  Max.   :8.780   Max.   :100.00   Max.   :12.127   Max.   :24.000  
+    ##       tax           ptratio          black            lstat      
+    ##  Min.   :187.0   Min.   :12.60   Min.   :  0.32   Min.   : 1.73  
+    ##  1st Qu.:279.0   1st Qu.:17.40   1st Qu.:375.38   1st Qu.: 6.95  
+    ##  Median :330.0   Median :19.05   Median :391.44   Median :11.36  
+    ##  Mean   :408.2   Mean   :18.46   Mean   :356.67   Mean   :12.65  
+    ##  3rd Qu.:666.0   3rd Qu.:20.20   3rd Qu.:396.23   3rd Qu.:16.95  
+    ##  Max.   :711.0   Max.   :22.00   Max.   :396.90   Max.   :37.97  
+    ##       medv      
+    ##  Min.   : 5.00  
+    ##  1st Qu.:17.02  
+    ##  Median :21.20  
+    ##  Mean   :22.53  
+    ##  3rd Qu.:25.00  
+    ##  Max.   :50.00
 
 This output gives me a few areas I’d like to investigate further. The zn
 and chas variables seem to have a lot of 0s so that’s something I should
@@ -97,13 +103,17 @@ is also interesting.
 ``` r
 library(reshape2)
 library(ggplot2)
-d <- melt(Boston)
+d <- melt(df)
 ggplot(d,aes(x = value)) + 
     facet_wrap(~variable,scales = "free_x") + 
-    geom_histogram() + ylim(0,150)
+    geom_histogram() + 
+    geom_density(aes(y=..count..)) + ylim(0,75)
 ```
 
-    ## Warning: Removed 4 rows containing missing values (geom_bar).
+    ## Warning: Removed 11 rows containing missing values (geom_bar).
+
+    ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+    ## -Inf
 
 ![](BostonHousing_files/figure-gfm/histogram-1.png)<!-- -->
 
@@ -117,16 +127,31 @@ shapes of the other histograms. The average number of rooms per dwelling
 `dis` and `lstat` also appear to have somewhat normal distributions but
 both have long right tails.
 
+``` r
+ggplot(d, aes(x=value)) +
+  facet_wrap(~variable,scales = "free_x") + 
+    geom_boxplot()
+```
+
+![](BostonHousing_files/figure-gfm/initial_box_plot-1.png)<!-- -->
+
+In some ways I find these boxplots to be more informative than the
+histogram and density plots shown previously. Here we can see even more
+strongly the effect of `crim` and `zn` having a large count of 0s as
+shown by the small box and large quantity of outliers. `black` is
+interesting as well with the small box to the right and large quantity
+of outliers to the left.
+
 ## Linear Model - the wrong way
 
 ``` r
-lm1 <- lm(medv~., data=Boston)
+lm1 <- lm(medv~., data=df)
 summary(lm1)
 ```
 
     ## 
     ## Call:
-    ## lm(formula = medv ~ ., data = Boston)
+    ## lm(formula = medv ~ ., data = df)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
@@ -138,7 +163,7 @@ summary(lm1)
     ## crim        -1.080e-01  3.286e-02  -3.287 0.001087 ** 
     ## zn           4.642e-02  1.373e-02   3.382 0.000778 ***
     ## indus        2.056e-02  6.150e-02   0.334 0.738288    
-    ## chas         2.687e+00  8.616e-01   3.118 0.001925 ** 
+    ## chas1        2.687e+00  8.616e-01   3.118 0.001925 ** 
     ## nox         -1.777e+01  3.820e+00  -4.651 4.25e-06 ***
     ## rm           3.810e+00  4.179e-01   9.116  < 2e-16 ***
     ## age          6.922e-04  1.321e-02   0.052 0.958229    
@@ -177,7 +202,7 @@ set.seed(123)
 train.control <- trainControl(method = "repeatedcv", 
                               number = 10, repeats = 3)
 # Train the model
-model <- train(medv ~., data = Boston, method = "lm",
+model <- train(medv ~., data = df, method = "lm",
                trControl = train.control)
 # Summarize the results
 print(model)
@@ -197,3 +222,59 @@ print(model)
     ##   4.806297  0.7284322  3.38933
     ## 
     ## Tuning parameter 'intercept' was held constant at a value of TRUE
+
+So our first attempt we have a RMSE or 4.806 or 21% of the mean of
+`medv` and a MAE of 3.38. Let’s see if we can do any better.
+
+### Stochastic Gradient Boosting
+
+Next we try running a gradient boosting model on it. We’re going to use
+repeated cross-validation here, so it’s going to split the data into 10
+pieces, train on 9 and test on the 10th, 3 times.
+
+``` r
+# Define training control
+set.seed(123)
+train.control <- trainControl(method = "repeatedcv", 
+                              number = 10, repeats = 3)
+# Train the model
+model <- train(medv ~., data = df, method = "gbm",
+               trControl = train.control)
+```
+
+``` r
+# Summarize the results
+print(model)
+```
+
+    ## Stochastic Gradient Boosting 
+    ## 
+    ## 506 samples
+    ##  13 predictor
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (10 fold, repeated 3 times) 
+    ## Summary of sample sizes: 455, 456, 456, 456, 456, 456, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   interaction.depth  n.trees  RMSE      Rsquared   MAE     
+    ##   1                   50      4.135202  0.8007898  2.904629
+    ##   1                  100      3.783353  0.8284978  2.623422
+    ##   1                  150      3.701101  0.8363079  2.560124
+    ##   2                   50      3.697815  0.8360651  2.555160
+    ##   2                  100      3.461828  0.8558121  2.414102
+    ##   2                  150      3.378508  0.8632860  2.358728
+    ##   3                   50      3.529874  0.8502159  2.425804
+    ##   3                  100      3.297945  0.8694818  2.272839
+    ##   3                  150      3.221971  0.8759659  2.222798
+    ## 
+    ## Tuning parameter 'shrinkage' was held constant at a value of 0.1
+    ## 
+    ## Tuning parameter 'n.minobsinnode' was held constant at a value of 10
+    ## RMSE was used to select the optimal model using the smallest value.
+    ## The final values used for the model were n.trees = 150, interaction.depth =
+    ##  3, shrinkage = 0.1 and n.minobsinnode = 10.
+
+Here we can see we’ve improved, we’re now at a RMSE of 3.22 and MAE of
+2.22. Can we do any better by going back to the data and performing some
+transformations on the data?
