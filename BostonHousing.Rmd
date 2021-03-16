@@ -14,6 +14,8 @@ LoadLibraries = function() {
   library(tidyverse)
   library(caret)
   library(ggpubr)
+  library(ggplot2)
+  library(viridis)
 }
 
 LoadLibraries()
@@ -50,7 +52,7 @@ str(df)
 This shows us that all of our variables are numeric, with chas and rad being integers. As you can see from the dictionary above, chas is a dummy variable representing whether or not the tract bounds the river, so it's best described as binary in this instance.  I'm going to change it to a factor so it doesn't mess with any of our calculations later.
 
 ```{r}
-df$chas <- as.factor(df$chas)
+#df$chas <- as.factor(df$chas)
 ```
 
 
@@ -128,3 +130,34 @@ print(model)
 ```
 
 Here we can see we've improved, we're now at a RMSE of 3.22 and MAE of 2.22.  Now that we have a baseline on what can be done with minimal interactions with the data, can we do any better by going back to the data and performing some transformations?
+
+```{r plot_corr_matrix}
+cormat <- round(cor(df),2)
+library(reshape2)
+melted_df <- melt(cormat)
+ggplot(data = melted_df, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile() +
+  geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) +
+  scale_fill_viridis()
+```
+
+In this heatmap we can see that `tax` and `rad` are very highly correlated to one another.  Additionaly, `dis` is highly correlated to `indus` `nox` and `age`.  Just for fun, let's try running the Stochastic Gradient Boosting with `tax`, `indus`, and `nox` removed due to these strong correlations.
+
+``` {r try_removing_correlations, results='hide'}
+# Create reduced df
+reduced_df <- df %>% select(!c('tax', 'indus', 'nox'))
+# Define training control
+set.seed(123)
+train.control <- trainControl(method = "repeatedcv", 
+                              number = 10, repeats = 3)
+# Train the model
+model <- train(medv ~., data = reduced_df, method = "gbm",
+               trControl = train.control)
+```
+
+``` {r}
+# Summarize the results
+print(model)
+```
+
+Our results got worse!  RMSE has increased to `3.46` and MAE to `2.40`.  Unlike linear models, gradient boosting models tend to not get as caught up with correlated inputs, so this result is not particularly surprising.

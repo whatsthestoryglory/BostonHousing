@@ -56,7 +56,7 @@ so it’s best described as binary in this instance. I’m going to change
 it to a factor so it doesn’t mess with any of our calculations later.
 
 ``` r
-df$chas <- as.factor(df$chas)
+#df$chas <- as.factor(df$chas)
 ```
 
 Rad is listed as an index of accessibility, so I take this as being
@@ -66,34 +66,34 @@ equivalent to a continuous variable like the others.
 summary(df)
 ```
 
-    ##       crim                zn             indus       chas         nox        
-    ##  Min.   : 0.00632   Min.   :  0.00   Min.   : 0.46   0:471   Min.   :0.3850  
-    ##  1st Qu.: 0.08205   1st Qu.:  0.00   1st Qu.: 5.19   1: 35   1st Qu.:0.4490  
-    ##  Median : 0.25651   Median :  0.00   Median : 9.69           Median :0.5380  
-    ##  Mean   : 3.61352   Mean   : 11.36   Mean   :11.14           Mean   :0.5547  
-    ##  3rd Qu.: 3.67708   3rd Qu.: 12.50   3rd Qu.:18.10           3rd Qu.:0.6240  
-    ##  Max.   :88.97620   Max.   :100.00   Max.   :27.74           Max.   :0.8710  
-    ##        rm             age              dis              rad        
-    ##  Min.   :3.561   Min.   :  2.90   Min.   : 1.130   Min.   : 1.000  
-    ##  1st Qu.:5.886   1st Qu.: 45.02   1st Qu.: 2.100   1st Qu.: 4.000  
-    ##  Median :6.208   Median : 77.50   Median : 3.207   Median : 5.000  
-    ##  Mean   :6.285   Mean   : 68.57   Mean   : 3.795   Mean   : 9.549  
-    ##  3rd Qu.:6.623   3rd Qu.: 94.08   3rd Qu.: 5.188   3rd Qu.:24.000  
-    ##  Max.   :8.780   Max.   :100.00   Max.   :12.127   Max.   :24.000  
-    ##       tax           ptratio          black            lstat      
-    ##  Min.   :187.0   Min.   :12.60   Min.   :  0.32   Min.   : 1.73  
-    ##  1st Qu.:279.0   1st Qu.:17.40   1st Qu.:375.38   1st Qu.: 6.95  
-    ##  Median :330.0   Median :19.05   Median :391.44   Median :11.36  
-    ##  Mean   :408.2   Mean   :18.46   Mean   :356.67   Mean   :12.65  
-    ##  3rd Qu.:666.0   3rd Qu.:20.20   3rd Qu.:396.23   3rd Qu.:16.95  
-    ##  Max.   :711.0   Max.   :22.00   Max.   :396.90   Max.   :37.97  
-    ##       medv      
-    ##  Min.   : 5.00  
-    ##  1st Qu.:17.02  
-    ##  Median :21.20  
-    ##  Mean   :22.53  
-    ##  3rd Qu.:25.00  
-    ##  Max.   :50.00
+    ##       crim                zn             indus            chas        
+    ##  Min.   : 0.00632   Min.   :  0.00   Min.   : 0.46   Min.   :0.00000  
+    ##  1st Qu.: 0.08205   1st Qu.:  0.00   1st Qu.: 5.19   1st Qu.:0.00000  
+    ##  Median : 0.25651   Median :  0.00   Median : 9.69   Median :0.00000  
+    ##  Mean   : 3.61352   Mean   : 11.36   Mean   :11.14   Mean   :0.06917  
+    ##  3rd Qu.: 3.67708   3rd Qu.: 12.50   3rd Qu.:18.10   3rd Qu.:0.00000  
+    ##  Max.   :88.97620   Max.   :100.00   Max.   :27.74   Max.   :1.00000  
+    ##       nox               rm             age              dis        
+    ##  Min.   :0.3850   Min.   :3.561   Min.   :  2.90   Min.   : 1.130  
+    ##  1st Qu.:0.4490   1st Qu.:5.886   1st Qu.: 45.02   1st Qu.: 2.100  
+    ##  Median :0.5380   Median :6.208   Median : 77.50   Median : 3.207  
+    ##  Mean   :0.5547   Mean   :6.285   Mean   : 68.57   Mean   : 3.795  
+    ##  3rd Qu.:0.6240   3rd Qu.:6.623   3rd Qu.: 94.08   3rd Qu.: 5.188  
+    ##  Max.   :0.8710   Max.   :8.780   Max.   :100.00   Max.   :12.127  
+    ##       rad              tax           ptratio          black       
+    ##  Min.   : 1.000   Min.   :187.0   Min.   :12.60   Min.   :  0.32  
+    ##  1st Qu.: 4.000   1st Qu.:279.0   1st Qu.:17.40   1st Qu.:375.38  
+    ##  Median : 5.000   Median :330.0   Median :19.05   Median :391.44  
+    ##  Mean   : 9.549   Mean   :408.2   Mean   :18.46   Mean   :356.67  
+    ##  3rd Qu.:24.000   3rd Qu.:666.0   3rd Qu.:20.20   3rd Qu.:396.23  
+    ##  Max.   :24.000   Max.   :711.0   Max.   :22.00   Max.   :396.90  
+    ##      lstat            medv      
+    ##  Min.   : 1.73   Min.   : 5.00  
+    ##  1st Qu.: 6.95   1st Qu.:17.02  
+    ##  Median :11.36   Median :21.20  
+    ##  Mean   :12.65   Mean   :22.53  
+    ##  3rd Qu.:16.95   3rd Qu.:25.00  
+    ##  Max.   :37.97   Max.   :50.00
 
 This output gives me a few areas I’d like to investigate further. The zn
 and chas variables seem to have a lot of 0s so that’s something I should
@@ -110,7 +110,7 @@ ggplot(d,aes(x = value)) +
     geom_density(aes(y=..count..)) + ylim(0,75)
 ```
 
-    ## Warning: Removed 11 rows containing missing values (geom_bar).
+    ## Warning: Removed 12 rows containing missing values (geom_bar).
 
     ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
     ## -Inf
@@ -163,7 +163,7 @@ summary(lm1)
     ## crim        -1.080e-01  3.286e-02  -3.287 0.001087 ** 
     ## zn           4.642e-02  1.373e-02   3.382 0.000778 ***
     ## indus        2.056e-02  6.150e-02   0.334 0.738288    
-    ## chas1        2.687e+00  8.616e-01   3.118 0.001925 ** 
+    ## chas         2.687e+00  8.616e-01   3.118 0.001925 ** 
     ## nox         -1.777e+01  3.820e+00  -4.651 4.25e-06 ***
     ## rm           3.810e+00  4.179e-01   9.116  < 2e-16 ***
     ## age          6.922e-04  1.321e-02   0.052 0.958229    
@@ -281,3 +281,71 @@ Here we can see we’ve improved, we’re now at a RMSE of 3.22 and MAE of
 2.22. Now that we have a baseline on what can be done with minimal
 interactions with the data, can we do any better by going back to the
 data and performing some transformations?
+
+``` r
+cormat <- round(cor(df),2)
+library(reshape2)
+melted_df <- melt(cormat)
+ggplot(data = melted_df, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile() +
+  geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) +
+  scale_fill_viridis()
+```
+
+![](BostonHousing_files/figure-gfm/plot_corr_matrix-1.png)<!-- -->
+
+In this heatmap we can see that `tax` and `rad` are very highly
+correlated to one another. Additionaly, `dis` is highly correlated to
+`indus` `nox` and `age`. Just for fun, let’s try running the Stochastic
+Gradient Boosting with `tax`, `indus`, and `nox` removed due to these
+strong correlations.
+
+``` r
+# Create reduced df
+reduced_df <- df %>% select(!c('tax', 'indus', 'nox'))
+# Define training control
+set.seed(123)
+train.control <- trainControl(method = "repeatedcv", 
+                              number = 10, repeats = 3)
+# Train the model
+model <- train(medv ~., data = reduced_df, method = "gbm",
+               trControl = train.control)
+```
+
+``` r
+# Summarize the results
+print(model)
+```
+
+    ## Stochastic Gradient Boosting 
+    ## 
+    ## 506 samples
+    ##  10 predictor
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (10 fold, repeated 3 times) 
+    ## Summary of sample sizes: 455, 456, 456, 456, 456, 456, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   interaction.depth  n.trees  RMSE      Rsquared   MAE     
+    ##   1                   50      4.213892  0.7924049  2.961820
+    ##   1                  100      3.969683  0.8111792  2.752946
+    ##   1                  150      3.940718  0.8149656  2.730455
+    ##   2                   50      3.881693  0.8190385  2.669587
+    ##   2                  100      3.701219  0.8349355  2.564549
+    ##   2                  150      3.650646  0.8394570  2.546108
+    ##   3                   50      3.720281  0.8324462  2.568652
+    ##   3                  100      3.555812  0.8462002  2.464091
+    ##   3                  150      3.463521  0.8538160  2.404940
+    ## 
+    ## Tuning parameter 'shrinkage' was held constant at a value of 0.1
+    ## 
+    ## Tuning parameter 'n.minobsinnode' was held constant at a value of 10
+    ## RMSE was used to select the optimal model using the smallest value.
+    ## The final values used for the model were n.trees = 150, interaction.depth =
+    ##  3, shrinkage = 0.1 and n.minobsinnode = 10.
+
+Our results got worse! RMSE has increased to `3.46` and MAE to `2.40`.
+Unlike linear models, gradient boosting models tend to not get as caught
+up with correlated inputs, so this result is not particularly
+surprising.
