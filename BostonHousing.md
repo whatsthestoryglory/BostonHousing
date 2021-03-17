@@ -348,4 +348,57 @@ print(model)
 Our results got worse! RMSE has increased to `3.46` and MAE to `2.40`.
 Unlike linear models, gradient boosting models tend to not get as caught
 up with correlated inputs, so this result is not particularly
-surprising.
+surprising. It was worth a shot, though.
+
+In another notebook on this data I saw a lot of discussion about the top
+end of `medv`, there are 16 entries where `medv == 50` which is a lot
+given the otherwise normal nature of the dataset. Let’s see what happens
+if we just bulk remove them.
+
+``` r
+# Create reduced df
+reduced_df <- df[df$medv < 50,]
+# Define training control
+set.seed(123)
+train.control <- trainControl(method = "repeatedcv", 
+                              number = 10, repeats = 3)
+# Train the model
+model <- train(medv ~., data = reduced_df, method = "gbm",
+               trControl = train.control)
+```
+
+``` r
+# Summarize the results
+print(model)
+```
+
+    ## Stochastic Gradient Boosting 
+    ## 
+    ## 490 samples
+    ##  13 predictor
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (10 fold, repeated 3 times) 
+    ## Summary of sample sizes: 441, 441, 442, 441, 441, 440, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   interaction.depth  n.trees  RMSE      Rsquared   MAE     
+    ##   1                   50      3.283729  0.8274697  2.490447
+    ##   1                  100      3.025814  0.8464933  2.254747
+    ##   1                  150      2.971391  0.8520100  2.202061
+    ##   2                   50      3.038063  0.8473135  2.275592
+    ##   2                  100      2.865083  0.8636326  2.123984
+    ##   2                  150      2.766411  0.8732752  2.042147
+    ##   3                   50      2.906402  0.8600996  2.156807
+    ##   3                  100      2.729013  0.8760045  2.014822
+    ##   3                  150      2.667320  0.8816623  1.964085
+    ## 
+    ## Tuning parameter 'shrinkage' was held constant at a value of 0.1
+    ## 
+    ## Tuning parameter 'n.minobsinnode' was held constant at a value of 10
+    ## RMSE was used to select the optimal model using the smallest value.
+    ## The final values used for the model were n.trees = 150, interaction.depth =
+    ##  3, shrinkage = 0.1 and n.minobsinnode = 10.
+
+We’ve improved our best score from `RMSE == 3.22` and `MAE == 2.22` to
+`RMSE == 2.66` and `MAE == 1.96`. Not bad

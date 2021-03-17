@@ -160,4 +160,25 @@ model <- train(medv ~., data = reduced_df, method = "gbm",
 print(model)
 ```
 
-Our results got worse!  RMSE has increased to `3.46` and MAE to `2.40`.  Unlike linear models, gradient boosting models tend to not get as caught up with correlated inputs, so this result is not particularly surprising.
+Our results got worse!  RMSE has increased to `3.46` and MAE to `2.40`.  Unlike linear models, gradient boosting models tend to not get as caught up with correlated inputs, so this result is not particularly surprising.  It was worth a shot, though.
+
+In another notebook on this data I saw a lot of discussion about the top end of `medv`, there are 16 entries where `medv == 50` which is a lot given the otherwise normal nature of the dataset.  Let's see what happens if we just bulk remove them.
+
+``` {r try_removing_top_medv, results='hide'}
+# Create reduced df
+reduced_df <- df[df$medv < 50,]
+# Define training control
+set.seed(123)
+train.control <- trainControl(method = "repeatedcv", 
+                              number = 10, repeats = 3)
+# Train the model
+model <- train(medv ~., data = reduced_df, method = "gbm",
+               trControl = train.control)
+```
+
+``` {r}
+# Summarize the results
+print(model)
+```
+
+We've improved our best score from `RMSE == 3.22` and `MAE == 2.22` to `RMSE == 2.66` and `MAE == 1.96`.  Not bad
