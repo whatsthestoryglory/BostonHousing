@@ -3,6 +3,7 @@ title: "Boston Housing Analysis and Predictive Modeling"
 author: "Cameron"
 date: "3/12/2021"
 output: github_document
+monofont: "Fira Code"
 ---
 
 ```{r setup, include=FALSE}
@@ -102,10 +103,10 @@ set.seed(123)
 train.control <- trainControl(method = "repeatedcv", 
                               number = 10, repeats = 3)
 # Train the model
-model <- train(medv ~., data = df, method = "lm",
+linear_model <- train(medv ~., data = df, method = "lm",
                trControl = train.control)
 # Summarize the results
-print(model)
+print(linear_model)
 ```
 
 So our first attempt we have a RMSE or 4.806 or 21% of the mean of `medv` and a MAE of 3.38.  Let's see if we can do any better.
@@ -120,13 +121,13 @@ set.seed(123)
 train.control <- trainControl(method = "repeatedcv", 
                               number = 10, repeats = 3)
 # Train the model
-model <- train(medv ~., data = df, method = "gbm",
+gbm_model <- train(medv ~., data = df, method = "gbm",
                trControl = train.control)
 ```
 
 ``` {r}
 # Summarize the results
-print(model)
+print(gbm_model)
 ```
 
 Here we can see we've improved, we're now at a RMSE of 3.22 and MAE of 2.22.  Now that we have a baseline on what can be done with minimal interactions with the data, can we do any better by going back to the data and performing some transformations?
@@ -151,13 +152,13 @@ set.seed(123)
 train.control <- trainControl(method = "repeatedcv", 
                               number = 10, repeats = 3)
 # Train the model
-model <- train(medv ~., data = reduced_df, method = "gbm",
+reduced_model <- train(medv ~., data = reduced_df, method = "gbm",
                trControl = train.control)
 ```
 
 ``` {r}
 # Summarize the results
-print(model)
+print(reduced_model)
 ```
 
 Our results got worse!  RMSE has increased to `3.46` and MAE to `2.40`.  Unlike linear models, gradient boosting models tend to not get as caught up with correlated inputs, so this result is not particularly surprising.  It was worth a shot, though.
@@ -166,19 +167,52 @@ In another notebook on this data I saw a lot of discussion about the top end of 
 
 ``` {r try_removing_top_medv, results='hide'}
 # Create reduced df
-reduced_df <- df[df$medv < 50,]
+removed_df <- df[df$medv < 50,]
 # Define training control
 set.seed(123)
 train.control <- trainControl(method = "repeatedcv", 
                               number = 10, repeats = 3)
 # Train the model
-model <- train(medv ~., data = reduced_df, method = "gbm",
+removed_top_model <- train(medv ~., data = removed_df, method = "gbm",
                trControl = train.control)
 ```
 
 ``` {r}
 # Summarize the results
-print(model)
+print(removed_top_model)
 ```
 
-We've improved our best score from `RMSE == 3.22` and `MAE == 2.22` to `RMSE == 2.66` and `MAE == 1.96`.  Not bad
+We've improved our best score from `RMSE == 3.22` and `MAE == 2.22` to `RMSE == 2.66` and `MAE == 1.96`.  Not bad.  What if we perform a log transformation to remove some of the skew in the data
+
+``` {r try_log_on_reduced_df, results='hide'}
+# Create reduced df
+log_df <- log1p(reduced_df)
+# Define training control
+set.seed(123)
+train.control <- trainControl(method = "repeatedcv", 
+                              number = 10, repeats = 3)
+# Train the model
+log_model <- train(medv ~., data = log_df, method = "gbm",
+               trControl = train.control)
+```
+
+``` {r}
+# Summarize the results
+print(log_model)
+```
+
+### Wow!
+
+It looks like we knocked `RMSE` down to next to nothing!  Not so fast, though.  We performed a log transformation on our variables this time so we can no longer directly compare the RMSE between the two models.  
+
+``` {r compare_models}
+cat(paste(
+  paste("Log Model Performance:", min(log_model$results$RMSE) / mean(log_df$medv)),
+  paste("Removed $50k Model Performance:", min(removed_top_model$results$RMSE) / mean(removed_df$medv)),
+  paste("Reduced Predictors Performance:", min(reduced_model$results$RMSE) / mean(reduced_df$medv)),
+  sep = "\n"
+  )
+)
+```
+
+What I've done here to control for the log transformation is to calculate $\frac{RMSE}{\bar y}$ Root Mean Square Error divided by the mean of the samples.  This suggests we've made a dramatic improvement in our model by including the log transformation.

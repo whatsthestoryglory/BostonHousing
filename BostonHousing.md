@@ -203,10 +203,10 @@ set.seed(123)
 train.control <- trainControl(method = "repeatedcv", 
                               number = 10, repeats = 3)
 # Train the model
-model <- train(medv ~., data = df, method = "lm",
+linear_model <- train(medv ~., data = df, method = "lm",
                trControl = train.control)
 # Summarize the results
-print(model)
+print(linear_model)
 ```
 
     ## Linear Regression 
@@ -240,13 +240,13 @@ set.seed(123)
 train.control <- trainControl(method = "repeatedcv", 
                               number = 10, repeats = 3)
 # Train the model
-model <- train(medv ~., data = df, method = "gbm",
+gbm_model <- train(medv ~., data = df, method = "gbm",
                trControl = train.control)
 ```
 
 ``` r
 # Summarize the results
-print(model)
+print(gbm_model)
 ```
 
     ## Stochastic Gradient Boosting 
@@ -308,13 +308,13 @@ set.seed(123)
 train.control <- trainControl(method = "repeatedcv", 
                               number = 10, repeats = 3)
 # Train the model
-model <- train(medv ~., data = reduced_df, method = "gbm",
+reduced_model <- train(medv ~., data = reduced_df, method = "gbm",
                trControl = train.control)
 ```
 
 ``` r
 # Summarize the results
-print(model)
+print(reduced_model)
 ```
 
     ## Stochastic Gradient Boosting 
@@ -357,19 +357,19 @@ if we just bulk remove them.
 
 ``` r
 # Create reduced df
-reduced_df <- df[df$medv < 50,]
+removed_df <- df[df$medv < 50,]
 # Define training control
 set.seed(123)
 train.control <- trainControl(method = "repeatedcv", 
                               number = 10, repeats = 3)
 # Train the model
-model <- train(medv ~., data = reduced_df, method = "gbm",
+removed_top_model <- train(medv ~., data = removed_df, method = "gbm",
                trControl = train.control)
 ```
 
 ``` r
 # Summarize the results
-print(model)
+print(removed_top_model)
 ```
 
     ## Stochastic Gradient Boosting 
@@ -401,4 +401,75 @@ print(model)
     ##  3, shrinkage = 0.1 and n.minobsinnode = 10.
 
 We’ve improved our best score from `RMSE == 3.22` and `MAE == 2.22` to
-`RMSE == 2.66` and `MAE == 1.96`. Not bad
+`RMSE == 2.66` and `MAE == 1.96`. Not bad. What if we perform a log
+transformation to remove some of the skew in the data
+
+``` r
+# Create reduced df
+log_df <- log1p(reduced_df)
+# Define training control
+set.seed(123)
+train.control <- trainControl(method = "repeatedcv", 
+                              number = 10, repeats = 3)
+# Train the model
+log_model <- train(medv ~., data = log_df, method = "gbm",
+               trControl = train.control)
+```
+
+``` r
+# Summarize the results
+print(log_model)
+```
+
+    ## Stochastic Gradient Boosting 
+    ## 
+    ## 506 samples
+    ##  10 predictor
+    ## 
+    ## No pre-processing
+    ## Resampling: Cross-Validated (10 fold, repeated 3 times) 
+    ## Summary of sample sizes: 455, 456, 456, 456, 456, 456, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   interaction.depth  n.trees  RMSE       Rsquared   MAE      
+    ##   1                   50      0.1841884  0.7793659  0.1313799
+    ##   1                  100      0.1744393  0.7958695  0.1223636
+    ##   1                  150      0.1735935  0.7985656  0.1216185
+    ##   2                   50      0.1695216  0.8085560  0.1197925
+    ##   2                  100      0.1644674  0.8183668  0.1155747
+    ##   2                  150      0.1641875  0.8195008  0.1149206
+    ##   3                   50      0.1637956  0.8194867  0.1145418
+    ##   3                  100      0.1594580  0.8276477  0.1106694
+    ##   3                  150      0.1569072  0.8335710  0.1094916
+    ## 
+    ## Tuning parameter 'shrinkage' was held constant at a value of 0.1
+    ## 
+    ## Tuning parameter 'n.minobsinnode' was held constant at a value of 10
+    ## RMSE was used to select the optimal model using the smallest value.
+    ## The final values used for the model were n.trees = 150, interaction.depth =
+    ##  3, shrinkage = 0.1 and n.minobsinnode = 10.
+
+### Wow!
+
+It looks like we knocked `RMSE` down to next to nothing! Not so fast,
+though. We performed a log transformation on our variables this time so
+we can no longer directly compare the RMSE between the two models.
+
+``` r
+cat(paste(
+  paste("Log Model Performance:", min(log_model$results$RMSE) / mean(log_df$medv)),
+  paste("Removed $50k Model Performance:", min(removed_top_model$results$RMSE) / mean(removed_df$medv)),
+  paste("Reduced Predictors Performance:", min(reduced_model$results$RMSE) / mean(reduced_df$medv)),
+  sep = "\n"
+  )
+)
+```
+
+    ## Log Model Performance: 0.0508541319307848
+    ## Removed $50k Model Performance: 0.123282042461596
+    ## Reduced Predictors Performance: 0.15371013157153
+
+What I’ve done here to control for the log transformation is to
+calculate $\\frac{RMSE}{\\bar y}$ Root Mean Square Error divided by the
+mean of the samples. This suggests we’ve made a dramatic improvement in
+our model by including the log transformation.
