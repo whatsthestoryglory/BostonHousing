@@ -470,6 +470,6 @@ cat(paste(
     ## Reduced Predictors Performance: 0.15371013157153
 
 What I’ve done here to control for the log transformation is to
-calculate $\\frac{RMSE}{\\bar y}$ Root Mean Square Error divided by the
-mean of the samples. This suggests we’ve made a dramatic improvement in
-our model by including the log transformation.
+calculate RMSE / *ȳ* Root Mean Square Error divided by the mean of the
+samples. The results suggest we’ve made a dramatic improvement in our
+model by including the log transformation step.
